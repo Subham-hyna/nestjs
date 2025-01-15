@@ -2,7 +2,6 @@ import {
   BadGatewayException,
   Injectable,
   NotFoundException,
-  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -21,7 +20,7 @@ export class UserService {
   ) {}
 
   async singup(createUserDto: CreateUserDto): Promise<User> {
-    const { email, username, password } = createUserDto;
+    const { email, password } = createUserDto;
 
     const userExist = await this.userRepository.findOne({ where: { email } });
     if (userExist)
