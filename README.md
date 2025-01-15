@@ -1,99 +1,139 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# API Documentation
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This document provides a detailed description of all the routes available in the User and Task modules, along with their request methods, parameters, and guards.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## **User Module**
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### **POST /user/signup**
+- **Description**: Create a new user.
+- **Request Body**:
+  ```json
+  {
+    "username": "string",
+    "email": "string",
+    "password": "string",
+    "role": "optional (USER | ADMIN)" 
+  }
+  ```
+- **Role**: By default role is assign to user and have to set to admin manually in the database
+- **Guards**: None
 
-## Project setup
+### **POST /user/signin**
+- **Description**: Sign in an existing user and return a JWT token.
+- **Request Body**:
+  ```json
+  {
+    "email": "string",
+    "password": "string"
+  }
+  ```
+- **Guards**: None
 
-```bash
-$ npm install
-```
+### **GET /user**
+- **Description**: Retrieve all users except the logged-in user.
+- **Guards**:
+  - `JwtAuthGuard`
+  - `RoleGuard` (Requires `ADMIN` role)
+- **Response**: Array of users excluding the logged-in user.
 
-## Compile and run the project
+### **GET /user/:id**
+- **Description**: Retrieve a specific user by ID.
+- **Path Parameters**:
+  - `id` (integer): The ID of the user.
+- **Guards**:
+  - `JwtAuthGuard`
+  - `RoleGuard` (Requires `ADMIN` role)
 
-```bash
-# development
-$ npm run start
+### **PATCH /user**
+- **Description**: Update the logged-in user's information.
+- **Request Body**:
+  ```json
+  {
+    "username": "optional string",
+    "email": "optional string",
+    "password": "optional string"
+  }
+  ```
+- **Guards**:
+  - `JwtAuthGuard`
 
-# watch mode
-$ npm run start:dev
+### **DELETE /user/:id**
+- **Description**: Delete a user by ID.
+- **Path Parameters**:
+  - `id` (integer): The ID of the user to delete.
+- **Guards**:
+  - `JwtAuthGuard`
+  - `RoleGuard` (Requires `ADMIN` role)
 
-# production mode
-$ npm run start:prod
-```
+---
 
-## Run tests
+## **Task Module**
 
-```bash
-# unit tests
-$ npm run test
+### **POST /task**
+- **Description**: Create a new task for the logged-in user.
+- **Request Body**:
+  ```json
+  {
+    "title": "string",
+    "status": "optional (PENDING | IN_PROGRESS | COMPLETED)"
+  }
+  ```
+- **Guards**:
+  - `JwtAuthGuard`
 
-# e2e tests
-$ npm run test:e2e
+### **GET /task**
+- **Description**: Retrieve all tasks for the logged-in user, with optional filtering by status.
+- **Query Parameters**:
+  - `status` (optional): Filter tasks by status (`PENDING`, `IN_PROGRESS`, `COMPLETED`).
+- **Guards**:
+  - `JwtAuthGuard`
 
-# test coverage
-$ npm run test:cov
-```
 
-## Deployment
+### **PATCH /task/:id**
+- **Description**: Update a task created by the logged-in user.
+- **Path Parameters**:
+  - `id` (integer): The ID of the task to update.
+- **Request Body**:
+  ```json
+  {
+    "title": "optional string",
+    "status": "optional (PENDING | IN_PROGRESS | COMPLETED)"
+  }
+  ```
+- **Guards**:
+  - `JwtAuthGuard`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### **DELETE /task/:id**
+- **Description**: Delete a task created by the logged-in user.
+- **Path Parameters**:
+  - `id` (integer): The ID of the task to delete.
+- **Guards**:
+  - `JwtAuthGuard`
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+---
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+## **Guards**
+- **JwtAuthGuard**:
+  - Ensures the user is authenticated.
+  - Adds the `user` object to the request for downstream use.
+- **RoleGuard**:
+  - Ensures the user has the required role (e.g., `ADMIN`).
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## **Decorators**
+- **@Roles**:
+  - Used to specify roles for endpoints, works in conjunction with `RoleGuard`.
+  - Example: `@Roles(RoleEnum.ADMIN)`
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Notes:
+- All routes requiring `JwtAuthGuard` expect the `Authorization` header:
+  ```
+  Authorization: Bearer <token>
+  ```
+- Validation is applied to all incoming requests using `ValidationPipe` to ensure proper data format.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

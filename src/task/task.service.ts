@@ -32,10 +32,6 @@ export class TaskService {
     return await this.taskRepository.find({ where: whereClause });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
-  }
-
   async update(id: number, updateTaskDto: UpdateTaskDto, userId: number): Promise<Task> {
         // Find the task by ID
         const task = await this.taskRepository.findOne({
