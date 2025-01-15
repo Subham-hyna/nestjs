@@ -13,6 +13,11 @@ async function bootstrap() {
     }),
   );
   app.use(new LoggingMiddleware().use);
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://hosteddomain.com'], // currently backend is not hosted, and there is not site such as hosteddomain.com
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
