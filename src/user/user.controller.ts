@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, ParseIntPipe, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ValidationPipe,
+  ParseIntPipe,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,17 +34,17 @@ export class UserController {
     return this.userService.signin(singInDto);
   }
 
-  @UseGuards(JwtAuthGuard,RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   @Get()
   async findAll(@Request() req) {
-    const loggedInUserId = req.user.id;  
+    const loggedInUserId = req.user.id;
 
-    const users = await this.userService.findAll(); 
-    return users.filter(user => user.id !== loggedInUserId);
+    const users = await this.userService.findAll();
+    return users.filter((user) => user.id !== loggedInUserId);
   }
 
-  @UseGuards(JwtAuthGuard,RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -42,14 +54,14 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Patch('')
   update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    const userId = req.user.id;  
+    const userId = req.user.id;
     return this.userService.update(userId, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(RoleEnum.ADMIN)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number,@Request() req) {
+  remove(@Param('id', ParseIntPipe) id: number, @Request() req) {
     return this.userService.remove(id);
   }
 }
