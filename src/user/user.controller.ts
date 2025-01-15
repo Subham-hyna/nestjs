@@ -4,6 +4,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SignInDTO } from './dto/signin-user.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { RoleGuard } from './guards/roles.guard';
+import { Roles } from './decorators/roles.decorator';
+import { RoleEnum } from './enum/roles.enum';
 
 @Controller('user')
 export class UserController {
@@ -19,7 +22,8 @@ export class UserController {
     return this.userService.signin(singInDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard,RoleGuard)
+  @Roles(RoleEnum.ADMIN)
   @Get()
   async findAll(@Request() req) {
     const loggedInUserId = req.user.id;  
@@ -28,19 +32,24 @@ export class UserController {
     return users.filter(user => user.id !== loggedInUserId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard,RoleGuard)
+  @Roles(RoleEnum.ADMIN)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(JwtAuthGuard)
+  @Patch('')
+  update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    const userId = req.user.id;  
+    return this.userService.update(userId, updateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(RoleEnum.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number,@Request() req) {
+    return this.userService.remove(id);
   }
 }

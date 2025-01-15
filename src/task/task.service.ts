@@ -27,7 +27,6 @@ export class TaskService {
     if (status) {
       whereClause.status = status;
     }
-    console.log(whereClause)
 
     // Fetch tasks based on the constructed filter
     return await this.taskRepository.find({ where: whereClause });
@@ -53,11 +52,28 @@ export class TaskService {
         }
     
         // Update the task with the provided data
-        const updatedTask = {...task, updateTaskDto};
+        const updatedTask = Object.assign(task, updateTaskDto);
         return this.taskRepository.save(updatedTask);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(userId: number, id: number): Promise<void> {
+    const task = await this.taskRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+  
+    // Check if the task exists
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+  
+    // Check if the task belongs to the user
+    if (task.user.id !== userId) {
+      throw new ForbiddenException('You can only delete tasks you have created');
+    }
+  
+    // Delete the task
+    await this.taskRepository.delete(id);
   }
+  
 }

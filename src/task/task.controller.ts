@@ -35,8 +35,10 @@ export class TaskController {
     return this.taskService.update(id, updateTaskDto, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taskService.remove(+id);
+  remove(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    const userId = req.user.id
+    return this.taskService.remove(userId,id);
   }
 }
