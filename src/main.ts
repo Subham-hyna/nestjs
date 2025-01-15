@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { LoggingMiddleware } from './common/middleware/logger.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,6 +12,7 @@ async function bootstrap() {
       transform: true, // Automatically transforms input data to match DTO types
     }),
   );
+  app.use(new LoggingMiddleware().use);
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
